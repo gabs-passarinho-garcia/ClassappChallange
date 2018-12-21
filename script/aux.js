@@ -1,16 +1,5 @@
 //Este arquivo não faz parte do projeto, apenas criei pra testar as funções enquanto faço
-var fs = require("fs")
-const readline = require("readline")
-var rl = readline.createInterface({
-      input : fs.createReadStream('input.csv'),
-      output: process.stdout,
-      terminal: false
-})
-var i = 0
-rl.on('line',function(line){
-    if (i == 0){
-      console.log("batata")
-    }
-    console.log(line)
-    ++i
-})
+const PNF = require('google-libphonenumber').PhoneNumberFormat;
+const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance()
+const number = phoneUtil.parseAndKeepRawInput("(11) 38839332", 'BR')
+console.log(phoneUtil.format(number, PNF.E164))
