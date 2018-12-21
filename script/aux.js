@@ -1,6 +1,16 @@
 //Este arquivo não faz parte do projeto, apenas criei pra testar as funções enquanto faço
-function separar(string){
-  var texto = string.split(/\"|\,/)
-  console.log(JSON.stringify(texto,null,4))
-}
-separar("fullname,eid,class,class,\"email Responsável, Pai\",phone Pai,\"phone Responsável, Mãe\",email Mãe,email Aluno,phone Aluno,invisible,see_all")
+var fs = require("fs")
+const readline = require("readline")
+var rl = readline.createInterface({
+      input : fs.createReadStream('input.csv'),
+      output: process.stdout,
+      terminal: false
+})
+var i = 0
+rl.on('line',function(line){
+    if (i == 0){
+      console.log("batata")
+    }
+    console.log(line)
+    ++i
+})
