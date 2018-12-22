@@ -30,14 +30,15 @@ function main(){
   console.log(JSON.stringify(alunos,null,4))
 }
 function separar(string){
+  var aspas1 = /\".+/, aspas2 = /.+\"/
   var texto = string.split(",")
   for (var i = 0; i < texto.length; i++){
-    if (/\".+/.test(texto[i])){
+    if (aspas.test(texto[i])){
       while(true){
         if (i === (texto.length)-1){
           break
         }
-        if (/.+\"/.test(texto[i+1])){
+        if (aspas2.test(texto[i+1])){
           texto[i] = texto[i] + texto[i+1]
           texto.splice(i+1,1)
           texto[i] = texto[i].substr(1).slice(0, -1)
@@ -45,7 +46,6 @@ function separar(string){
         } else {
           texto[i] = texto[i] + texto[i+1]
           texto.splice(i+1,1)
-          texto[i] = texto[i].substr(1).slice(0, -1)
         }
       }
     }
@@ -53,47 +53,67 @@ function separar(string){
   return texto
 }
 function cria_objeto(aluno,header,modelo,endereço){
+  const PNF = require('google-libphonenumber').PhoneNumberFormat;
+  const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance()
+  var name = /fullname/i, eid = /eid/i, num = /\d+/,classe = /class/i, sala = /Sala \d+/i, correio = /email/i
+  var email = /\w+@\w+\.[a-z]+\.?[a-z]{0,2}/, telefone = /phone/i, invisivel = /invisible/i, ver = /see_all/i
   aluno = separar(aluno)
+  endereço.tags = []
   if (aluno[i] === ""){
     continue
   }
   for (var i = 0; i < header.length; i++){
-    if (/fullname/i.test(header[i])){
+    if (name.test(header[i])){
       modelo.fullname = aluno[i]
-    } else if (/eid/.test(header[i])){
-      modelo.eid = /\d+/.exec(aluno[i])[0]
-    } else if (/class/i.test(header[i])){
-        var classe1
-        while(/classe \d+/i.test(aluno[i])){
-          classe1 = /Classe \d+/i.exec(aluno[i])[0]
-          modelo.classes.push(classe1)
-          aluno[i].replace(classe1,"")
-        }
-    } else if (/email/i.test(header[i])){
+    } else if (eid.test(header[i])){
+      modelo.eid = num.exec(aluno[i])[0]
+    } else if (classe.test(header[i])){
+        modelo = adicionar
+    } else if (correio.test(header[i])){
       endereço.type = "email"
       var tags = header[i].split(" ")
       for (var j = 0; j < tags.length; j++){
-        if (/email/i.test(tags[j])){
+        if (correio.test(tags[j])){
           continue
         } else{
-          endereço.tags.push(tags[i])
+          endereço.tags.push(tags[j])
         }
       }
-      endereço.address = /\w+@\w+\.[a-z]+\.?[a-z]{0,2}/.exec(aluno[i])[0]
-      modelo.addresses.push(endereço)
-    } else if (/phone/i.test(header[i])){
+      modelo = adicionar(endereço,aluno[i],email,modelo)
+    } else if (telefone.test(header[i])){
       endereço.type = "phone"
       var tags = header[i].split(" ")
       for (var j = 0; j < tags.length; j++){
-        if (/phone/i.test(tags[j])){
+        if (telefone.test(tags[j])){
           continue
         } else{
-          endereço.tags.push(tags[i])
+          endereço.tags.push(tags[j])
         }
-
+      }
+      var number = phoneUtil.parseAndKeepRawInput("(11) 38839332", 'BR')
+      if (phoneUtil.isValidNumber(number)){
+        endereço.address.push(phoneUtil.format(number, PNF.E164).replace("+",""))
+        modelo.addresses.push(endereço)
+      }
+    } else if (invisivel.test(header[i])){
+      if ((aluno[i] == true || aluno[i] !== "false" || num.test(aluno[i])) && aluno[i] != 0){
+        modelo.invisible = true
+      }
+    } else if (ver.test(header[i])){
+      if ((aluno[i] == true || aluno[i] !== "false" || num.test(aluno[i])) && aluno[i] != 0){
+        modelo.see_all = true
       }
     }
   }
+}
+function adicionar(endereço,aluno,regex,modelo){
+  while (regex.test(aluno)){
+    var corresponde = regex.exec(aluno[i])[0]
+    endereço.address = corresponde
+    aluno[i].replace(corresponde,"")
+    modelo.addresses.push(endereço)
+  }
+  return modelo
 }
 main()
 //Agradeço a Deus porque Ele sempre está comigo, morreu por mim, me salvou e cuidou de mim em cada momento de minha vida.
