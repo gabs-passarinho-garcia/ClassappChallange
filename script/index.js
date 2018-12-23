@@ -122,8 +122,7 @@ function adicionar(endereço,aluno,regex,modelo,tipo){
     if (tipo === 1){
       modelo.classes.push(corresponde)
     } else {
-      endereço.address = corresponde
-      modelo.addresses.push(endereço)
+      modelo = poe(endereço,modelo,corresponde)
       for (var i = 0; i < modelo.addresses.length; i++){
         console.log(modelo.addresses[i])
       }
@@ -166,6 +165,11 @@ function busca(elemento,lista){
     }
   }
   return false
+}
+function poe(endereço,modelo,email){
+  endereço.address = email
+  modelo.addresses.push(endereço)
+  return modelo
 }
 main()
 //Agradeço a Deus porque Ele sempre está comigo, morreu por mim, me salvou e cuidou de mim em cada momento de minha vida.
