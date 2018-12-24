@@ -10,6 +10,9 @@ function main(){
   header = separar(linhas[0])
   linhas.splice(0,1)
   for (var i = 0; i < linhas.length;i++){
+    if (linhas[i] == "" || linhas[i] == null || linhas[i] == undefined){
+      continue
+    }
     aluno = cria_objeto(linhas[i],header)
     if (aluno.classes.length == 1){
       aluno.classes = aluno.classes[0]
@@ -76,7 +79,9 @@ function cria_objeto(aluno,header){
     if (name.test(header[i])){
       modelo.fullname = aluno[i]
     } else if (eid.test(header[i])){
-      modelo.eid = num.exec(aluno[i])[0]
+      if(num.test(aluno[i])){
+        modelo.eid = num.exec(aluno[i])[0]
+      }
     } else if (classe.test(header[i])){
         modelo = adicionar(endereço,aluno[i],sala,modelo,1)
     } else if (correio.test(header[i])){
@@ -152,6 +157,9 @@ function coloca(lista,aluno){
     if (lista[i].eid === aluno.eid){
       for (j = 0; j < aluno.classes.length; j++){
         if (!busca(aluno.classes[j],lista[i].classes)){
+          if (!Array.isArray(lista[i].classes)){
+            lista[i].classes = [lista[i].classes]
+          }
           lista[i].classes.push(aluno.classes[j])
         }
       }
@@ -190,8 +198,6 @@ function funde(lista,endereço){
   if (lista.tags === undefined || lista.tags === null){
     lista.tags = []
   }
-  console.log(endereço.address)
-  console.log(endereço.tags)
   if (x < 0){
     lista.push(endereço)
     return lista
@@ -199,7 +205,6 @@ function funde(lista,endereço){
     for (var i = 0; i < endereço.tags.length; i++){
       if (!busca(endereço.tags[i],lista.tags)){
         lista[x].tags.push(endereço.tags[i])
-        console.log(lista[x].tags)
       }
     }
     return lista
@@ -214,5 +219,7 @@ function busca_endereço(lista,endereço){
   }
   return -1
 }
+
+
 main()
 //Agradeço a Deus porque Ele sempre está comigo, morreu por mim, me salvou e cuidou de mim em cada momento de minha vida.
