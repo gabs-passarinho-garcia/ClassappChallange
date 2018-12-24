@@ -16,7 +16,7 @@ function main(){
     } else if (aluno.classes.length == 0){
       aluno.classes = ""
     }
-    alunos = coloca(alunos,aluno)
+    alunos = funde(alunos,aluno)
   }
   if (alunos.length == 1){
     alunos = alunos[0]
@@ -25,6 +25,39 @@ function main(){
   }
   fs.writeFileSync("output.json",JSON.stringify(alunos,null,1),"utf-8")
   //console.log(JSON.stringify(alunos,null,4))
+}
+function funde(lista,aluno) {
+  var i ,j
+  for (i = 0; i < lista.length; i++){
+    if (lista[i].eid === aluno.eid){
+      for (j = 0; j < aluno.classes.length; j++){
+        if (busca(aluno.classes[j],lista[i].classes < 0)){
+          lista[i].classes.push(aluno.classes[j])
+        }
+      }
+      for (j = 0; j < aluno.addresses.length; j++){
+        var x = busca_endereço(aluno.addresses[j],lista[i].addresses)
+        if (x < 0){
+          lista[i].addresses.push(aluno.addresses[j])
+        } else{
+          for (var y = 0; y < aluno.addresses[j].tags.length; y++){
+            if(busca(aluno.addresses[j].tags[y],lista[i].addresses[x].tags) < 0){
+              lista[i].addresses[x].tags.push(aluno.addresses[j].tags[y])
+            }
+          }
+        }
+      }
+      if (lista[i].invisible === true || aluno.invisible === true){
+        lista[i].invisible = true
+      }
+      if (lista[i].see_all === true || aluno.see_all === true){
+        lista[i].see_all = true
+      }
+      return lista
+    }
+  }
+  lista.push(aluno)
+  return lista
 }
 function separar(string){
   var aspas1 = /\".+/, aspas2 = /.+\"/
@@ -70,7 +103,7 @@ function cria_objeto(aluno,header){
       tags: [],
       address: ""
     }
-    endereço.tags = []
+    //endereço.tags = []
     if (aluno[i] === ""){
       continue
     }
@@ -111,8 +144,16 @@ function cria_objeto(aluno,header){
       var number = phoneUtil.parseAndKeepRawInput(aluno[i], 'BR')
       if (phoneUtil.isValidNumber(number)){
         endereço.address = phoneUtil.format(number, PNF.E164).replace("+","")
-        modelo.addresses.push(endereço)
-      }
+          var x = busca_endereço(endereço,modelo.addresses)
+          if (x < 0){
+            modelo.addresses.push(endereço)
+          } else{
+            for (var y = 0; y < endereço.tags.length; y++){
+              if(busca(endereço.tags[y],modelo.addresses[x].tags) < 0){
+                modelo.addresses[x].tags.push(endereço.tags[y])
+              }
+            }
+          }
     } else if (invisivel.test(header[i])){
       if ((aluno[i] == true || aluno[i] == "yes" || num.test(aluno[i])) && (aluno[i] != 0 && aluno[i] !== "false" && aluno[i] != "no" && aluno[i] != false)){
         modelo.invisible = true
@@ -139,7 +180,16 @@ function adicionar(endereço,aluno,regex,modelo,tipo){
       modelo.classes.push(corresponde)
     } else {
       cópia.address = corresponde
-      modelo.addresses.push(cópia)
+      var x = busca_endereço(cópia,modelo.addresses)
+      if (x < 0){
+        modelo.addresses.push(cópia)
+      } else{
+        for (var y = 0; y < cópia.tags.length; y++){
+          if(busca(cópia.tags[y],modelo.addresses[x].tags) < 0){
+            modelo.addresses[x].tags.push(cópia.tags[y])
+          }
+        }
+      }
       for (var i = 0; i < modelo.addresses.length; i++){
         console.log(modelo.addresses[i])
       }
@@ -148,55 +198,16 @@ function adicionar(endereço,aluno,regex,modelo,tipo){
   }
   return modelo
 }
-function coloca(lista,aluno){
-  var i ,j
-  for (i = 0; i < lista.length; i++){
-    if (lista[i].eid === aluno.eid){
-      for (j = 0; j < aluno.classes.length; j++){
-        if (!busca(aluno.classes[j],lista[i].classes)){
-          lista[i].classes.push(aluno.classes[j])
-        }
-      }
-      for (j = 0; j < aluno.addresses.length; j++){
-        if (!busca(aluno.addresses[j],lista[i].addresses)){
-          lista[i].addresses.push(aluno.addresses[j])
-        }
-      }
-      if (lista[i].invisible === true || aluno.invisible === true){
-        lista[i].invisible = true
-      }
-      if (lista[i].see_all === true || aluno.see_all === true){
-        lista[i].see_all = true
-      }
-      return lista
-    }
-  }
-  lista.push(aluno)
-  return lista
-}
 function busca(elemento,lista){
   var i
   for (i = 0; i < lista.length; i++){
     if (elemento == lista[i]){
-      return true
+      return i
     }
   }
-  return false
+  return -1
 }
-function funde(lista,endereço){
-  var x = busca_endereço(lista,endereço)
-  if (x < 0){
-    lista.push(endereço)
-    return lista
-  } else{
-    for (var i = 0; i < endereço.tags.length; i++){
-      if (!busca(endereço.tags[i],lista.tags)){
-        lista.tags.push(endereço.tags[i])
-      }
-    }
-  }
-}
-function busca_endereço(lista,endereço){
+function busca_endereço(elemento,lista){
   var i
   for (i = 0; i < lista.length; i++){
     if (elemento.address == lista[i].address){
@@ -205,5 +216,7 @@ function busca_endereço(lista,endereço){
   }
   return -1
 }
+}
+
 main()
 //Agradeço a Deus porque Ele sempre está comigo, morreu por mim, me salvou e cuidou de mim em cada momento de minha vida.

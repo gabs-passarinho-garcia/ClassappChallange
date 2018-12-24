@@ -71,9 +71,7 @@
  {
   "fullname": "Mary Doe 2",
   "eid": "1235",
-  "classes": [
-   "Sala 1"
-  ],
+  "classes": "Sala 1",
   "addresses": [
    {
     "type": "email",
