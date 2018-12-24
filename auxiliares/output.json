@@ -1,0 +1,81 @@
+[
+ {
+  "fullname": "Gabriel de Freitas",
+  "eid": "1234",
+  "classes": [
+   "sala 15",
+   "sala 1500",
+   "sala 2"
+  ],
+  "addresses": [
+   {
+    "type": "phone",
+    "tags": [
+     "Pai"
+    ],
+    "address": "5511995663117"
+   },
+   {
+    "type": "email",
+    "tags": [
+     "Responsável",
+     "Pai"
+    ],
+    "address": "alaor@batata.com.br"
+   },
+   {
+    "type": "email",
+    "tags": [
+     "Mãe"
+    ],
+    "address": "telma@gmail.com"
+   }
+  ],
+  "invisible": true,
+  "see_all": true
+ },
+ {
+  "fullname": "Gabriel de Freitas",
+  "eid": "1235",
+  "classes": "sala 15",
+  "addresses": [
+   {
+    "type": "email",
+    "tags": [
+     "Responsável",
+     "Pai"
+    ],
+    "address": "alaor@batata.com.br"
+   }
+  ],
+  "invisible": true,
+  "see_all": true
+ },
+ {
+  "fullname": "Hosana",
+  "eid": "2903",
+  "classes": [
+   "sala 1500",
+   "sala 2"
+  ],
+  "addresses": [
+   {
+    "type": "phone",
+    "tags": [
+     "Responsável",
+     "Mãe"
+    ],
+    "address": "5511957219030"
+   },
+   {
+    "type": "email",
+    "tags": [
+     "Mãe"
+    ],
+    "address": "telma@gmail.com"
+   }
+  ],
+  "invisible": true,
+  "see_all": false
+ }
+]
