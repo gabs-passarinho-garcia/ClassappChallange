@@ -1,63 +1,63 @@
 /*Nome: Gabriel de Freitas Garcia
 Objetivo: Fazer um programa em node.js que receba um arquivo input.csv, processe os dados e imprima em um arquivo outpu.json*/
-function main(){
-  var fs = require("fs");
+function main(){ //função principal
+  var fs = require("fs"); //módulo com funções para arquivos
   var arquivo,linhas,aluno;
   var alunos = [];
-  var header = [];
-  arquivo = fs.readFileSync("input.csv","utf-8");
-  linhas = arquivo.split(/\r?\n/);
-  header = separar(linhas[0]);
-  linhas.splice(0,1);
+  var header = []; //variáveis usadas para guardar o arquivo, o arquivo separado em linhas, aluno provisoriamente, headers e a lista com os alunos
+  arquivo = fs.readFileSync("input.csv","utf-8"); //lê a entrada sincronamente, pra não dar problema com as operações em paralelo
+  linhas = arquivo.split(/\r?\n/); //quebra cada linha da entrada numa lista
+  header = separar(linhas[0]); //separa o header num formato aproveitável
+  linhas.splice(0,1); //retira o header da lista
   for (var i = 0; i < linhas.length;i++){
     if (linhas[i] == "" || linhas[i] == null || linhas[i] == undefined){
-      continue;
+      continue; //se não houver nada neste elemento de linhas, passa pra próxima iteração
     }
-    aluno = cria_objeto(linhas[i],header);
+    aluno = cria_objeto(linhas[i],header); //salva a linha num objeto
     if (aluno.classes.length == 1){
-      aluno.classes = aluno.classes[0];
+      aluno.classes = aluno.classes[0]; //Se houver apenas um aluno, transforma lista em string
     } else if (aluno.classes.length == 0){
-      aluno.classes = "";
+      aluno.classes = ""; //Se não houver nenhum, transforma lista em string vazia
     }
-    alunos = coloca(alunos,aluno);
+    alunos = coloca(alunos,aluno); //Insere o aluno na lista alunos
   }
   if (alunos.length == 1){
-    alunos = alunos[0];
+    alunos = alunos[0]; //Se houver apenas um aluno. transforma em objeto
   } else if (alunos.length == 0){
-    alunos = "";
+    alunos = ""; //Se não houver nenhum, transforma em string vazia
   }
-  fs.writeFileSync("output.json",JSON.stringify(alunos,null,1),"utf-8");
+  fs.writeFileSync("output.json",JSON.stringify(alunos,null,1),"utf-8"); //Escreve no arquivo de saída, sincronamente, achei melhor não lidar com assincro por enquanto
   //console.log(JSON.stringify(alunos,null,4))
 }
 function separar(string){
-  var aspas1 = /\".+/, aspas2 = /.+\"/;
-  var texto = string.split(",");
+  var aspas1 = /\".+/, aspas2 = /.+\"/; //Regex para expressões com aspas no começo e no final
+  var texto = string.split(","); //Separa testo pelas vírgulas
   for (var i = 0; i < texto.length; i++){
-    if (aspas1.test(texto[i])){
+    if (aspas1.test(texto[i])){ //Se começa com aspas
       while(true){
         if (i === (texto.length)-1){
-          break;
+          break; //Se for o último da lista quebra o laço
         }
-        if (aspas2.test(texto[i+1])){
-          texto[i] = texto[i] + texto[i+1];
-          texto.splice(i+1,1);
-          texto[i] = texto[i].substr(1).slice(0, -1);
-          break
+        if (aspas2.test(texto[i+1])){ //Quando acha aspas no final
+          texto[i] = texto[i] + texto[i+1]; //Concatena as duas strings
+          texto.splice(i+1,1); //Tira a segunda string da lista
+          texto[i] = texto[i].substr(1).slice(0, -1); //Remove as aspas
+          break;
         } else {
-          texto[i] = texto[i] + texto[i+1];
-          texto.splice(i+1,1);
+          texto[i] = texto[i] + texto[i+1]; //Se não tiver aspas no final, não é a última tag, apenas concatena as strings
+          texto.splice(i+1,1); //E remove a segunda da lista
         }
       }
     }
   }
-  return texto;
+  return texto; //Retorna lista com os headers
 }
-function cria_objeto(aluno,header){
-  const PNF = require('google-libphonenumber').PhoneNumberFormat;
+function cria_objeto(aluno,header){ //Função que transforma linha da entrada em objeto js
+  const PNF = require('google-libphonenumber').PhoneNumberFormat; //Invoca biblioteca de telefone
   const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
-  var name = /fullname/i, eid = /eid/i, num = /\d+/,classe = /class/i, sala = /sala \d+/i, correio = /email/i;
+  var name = /fullname/i, eid = /eid/i, num = /\d+/,classe = /class/i, sala = /sala \d+/i, correio = /email/i; //Regex uteis para buscar coisas nas strings e verificar se algo é um email
   var email = /\w+@\w+\.[a-z]+\.?[a-z]{0,2}/, telefone = /phone/i, invisivel = /invisible/i, ver = /see_all/i, letra = /[a-zA-Z]+/,especiais = /[();:!#$*&£\[\]\{\}+=]+/;
-  var modelo, endereço;
+  var modelo, endereço; //Variáveis usadas
   modelo = {
     fullname : "",
     eid: "",
@@ -65,14 +65,14 @@ function cria_objeto(aluno,header){
     addresses: [],
     invisible: false,
     see_all: false
-  }
+  } //Objeto com informações para os alunos
   aluno = separar(aluno);
   for (var i = 0; i < header.length; i++){
     endereço = {
       type: "",
       tags: [],
       address: ""
-    }
+    } //Objeto para salvar os endereços, precisa ser recriado a cada iteração para não dar problema de referência
     if (aluno[i] === ""){
       continue;
     }
