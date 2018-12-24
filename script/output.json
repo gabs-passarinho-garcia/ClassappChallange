@@ -104,13 +104,7 @@
    {
     "type": "email",
     "tags": [
-     "Mãe"
-    ],
-    "address": "victordoe3@gmail.com"
-   },
-   {
-    "type": "email",
-    "tags": [
+     "Mãe",
      "Aluno"
     ],
     "address": "victordoe3@gmail.com"

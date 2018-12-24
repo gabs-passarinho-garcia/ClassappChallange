@@ -70,7 +70,6 @@ function cria_objeto(aluno,header){
       tags: [],
       address: ""
     }
-    endereço.tags = []
     if (aluno[i] === ""){
       continue
     }
@@ -90,10 +89,10 @@ function cria_objeto(aluno,header){
         if (correio.test(tags[j])){
           continue
         } else{
+          if (!busca(tags[j],endereço.tags))
           endereço.tags.push(tags[j])
         }
       }
-      console.log("batata")
       modelo = adicionar(endereço,aluno[i],email,modelo,2)
     } else if (telefone.test(header[i])){
       if ((letra.test(aluno[i]))){
@@ -105,13 +104,14 @@ function cria_objeto(aluno,header){
         if (telefone.test(tags[j])){
           continue
         } else{
+          if (!busca(tags[j],endereço.tags))
           endereço.tags.push(tags[j])
         }
       }
       var number = phoneUtil.parseAndKeepRawInput(aluno[i], 'BR')
       if (phoneUtil.isValidNumber(number)){
         endereço.address = phoneUtil.format(number, PNF.E164).replace("+","")
-        modelo.addresses.push(endereço)
+        modelo.addresses = funde(modelo.addresses,endereço)
       }
     } else if (invisivel.test(header[i])){
       if ((aluno[i] == true || aluno[i] == "yes" || num.test(aluno[i])) && (aluno[i] != 0 && aluno[i] !== "false" && aluno[i] != "no" && aluno[i] != false)){
@@ -134,15 +134,13 @@ function adicionar(endereço,aluno,regex,modelo,tipo){
       address: ""
     }
     var corresponde = regex.exec(aluno)[0]
-    console.log(corresponde)
     if (tipo === 1){
-      modelo.classes.push(corresponde)
+      if (!busca(corresponde,modelo.classes)){
+        modelo.classes.push(corresponde)
+      }
     } else {
       cópia.address = corresponde
-      modelo.addresses.push(cópia)
-      for (var i = 0; i < modelo.addresses.length; i++){
-        console.log(modelo.addresses[i])
-      }
+      modelo.addresses = funde(modelo.addresses,cópia)
     }
     aluno = aluno.replace(corresponde,"")
   }
@@ -158,9 +156,7 @@ function coloca(lista,aluno){
         }
       }
       for (j = 0; j < aluno.addresses.length; j++){
-        if (!busca(aluno.addresses[j],lista[i].addresses)){
-          lista[i].addresses.push(aluno.addresses[j])
-        }
+        lista[i].addresses = funde(lista[i].addresses,aluno.addresses[j])
       }
       if (lista[i].invisible === true || aluno.invisible === true){
         lista[i].invisible = true
@@ -176,6 +172,9 @@ function coloca(lista,aluno){
 }
 function busca(elemento,lista){
   var i
+  if (lista === undefined || lista === null){
+    lista = []
+  }
   for (i = 0; i < lista.length; i++){
     if (elemento == lista[i]){
       return true
@@ -184,22 +183,32 @@ function busca(elemento,lista){
   return false
 }
 function funde(lista,endereço){
+  if (lista === undefined || lista === null){
+    lista = []
+  }
   var x = busca_endereço(lista,endereço)
+  if (lista.tags === undefined || lista.tags === null){
+    lista.tags = []
+  }
+  console.log(endereço.address)
+  console.log(endereço.tags)
   if (x < 0){
     lista.push(endereço)
     return lista
   } else{
     for (var i = 0; i < endereço.tags.length; i++){
       if (!busca(endereço.tags[i],lista.tags)){
-        lista.tags.push(endereço.tags[i])
+        lista[x].tags.push(endereço.tags[i])
+        console.log(lista[x].tags)
       }
     }
+    return lista
   }
 }
 function busca_endereço(lista,endereço){
   var i
   for (i = 0; i < lista.length; i++){
-    if (elemento.address == lista[i].address){
+    if (endereço.address == lista[i].address){
       return i
     }
   }
